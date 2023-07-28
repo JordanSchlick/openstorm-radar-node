@@ -227,6 +227,7 @@ static napi_value radarDataGetRayInfo(napi_env env, const napi_callback_info inf
 			RadarData::RayInfo* rayInfo = &radarData->rayInfo[i];
 			napi_value info;
 			napi_create_object(env, &info);
+			// these should be replaced with napi_define_properties to improve performance
 			napi_set_named_property(env, info, "interpolated", make_bool(env, rayInfo->interpolated));
 			napi_set_named_property(env, info, "actualAngle", make_double(env, rayInfo->actualAngle));
 			napi_set_named_property(env, info, "closestTheta", make_int32(env, rayInfo->closestTheta));

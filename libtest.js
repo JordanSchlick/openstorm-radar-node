@@ -6,7 +6,30 @@ let OpenStormRadar = require(".")
 let radarData = new OpenStormRadar.RadarData()
 console.log(radarData.pointer)
 
+let time = performance.now()
 radarData.loadNexradFile("../OpenStorm/Content/Data/Demo/KMKX_20220723_235820", OpenStormRadar.VolumeTypes.VOLUME_REFLECTIVITY)
+time = performance.now() - time
+console.log("Benchmark, loadNexradFile took " + time + "ms")
+
+time = performance.now()
+radarData.updateProperties()
+time = performance.now() - time
+console.log("Benchmark, updateProperties took " + time + "ms")
+
+time = performance.now()
+let rayInfos = radarData.getRayInfo()
+time = performance.now() - time
+console.log("Benchmark, getRayInfo took " + time + "ms to get " + rayInfos.length + " ray infos")
+
+time = performance.now()
+radarData.getSweepInfo()
+time = performance.now() - time
+console.log("Benchmark, getSweepInfo took " + time + "ms")
+
+time = performance.now()
+radarData.getStats()
+time = performance.now() - time
+console.log("Benchmark, getStats took " + time + "ms")
 
 // radarData.bufferArray is a 3D array representation of the buffer
 if(radarData.bufferArray){
