@@ -66,7 +66,7 @@ static napi_value radarDataDeallocate(napi_env env, const napi_callback_info inf
 	RadarData* radarData;
 	napi_remove_wrap(env, argv[0], (void**)&radarData);
 	if(radarData != NULL){
-		delete (RadarData*) radarData;
+		delete radarData;
 	}
 	return make_bool(env, 1);
 }
@@ -77,7 +77,7 @@ static napi_value radarDataLoadFile(napi_env env, const napi_callback_info info)
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 3)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer, file name, volume type]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer, file name, volume type]");
 		return make_undefined(env);
 	}
 	// radar data
@@ -104,7 +104,7 @@ static napi_value radarDataUpdateProperties(napi_env env, const napi_callback_in
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 2)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer, out object]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer, out object]");
 		return make_undefined(env);
 	}
 	// radar data
@@ -144,7 +144,7 @@ static napi_value radarDataGetStats(napi_env env, const napi_callback_info info)
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 1)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer]");
 		return make_undefined(env);
 	}
 	// radar data
@@ -180,7 +180,7 @@ static napi_value radarDataGetSweepInfo(napi_env env, const napi_callback_info i
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 1)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer]");
 		return make_undefined(env);
 	}
 	// radar data
@@ -210,7 +210,7 @@ static napi_value radarDataRadarSpaceForLocation(napi_env env, const napi_callba
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 4)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer, latitude, longitude, altitude]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer, latitude, longitude, altitude]");
 		return make_undefined(env);
 	}
 	// radar data
@@ -254,7 +254,7 @@ static napi_value radarDataGetPixelForRadarSpace(napi_env env, const napi_callba
 	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 	if (argc != 4)
 	{
-		napi_throw_error(env, nullptr, "Invalid number of arguments. [pointer, x, y, z]");
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer, x, y, z]");
 		return make_undefined(env);
 	}
 	// radar data

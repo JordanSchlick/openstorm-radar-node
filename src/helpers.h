@@ -1,3 +1,4 @@
+#pragma once
 #include <node_api.h>
 
 napi_value make_bool(napi_env env, int input) {

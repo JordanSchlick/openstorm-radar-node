@@ -5,8 +5,8 @@
 
 
 #include "binding_radardata.h"
-// #include "binding_radardataholder.h"
-// #include "binding_other.h"
+#include "binding_radardataholder.h"
+#include "binding_other.h"
 
 
 
@@ -112,27 +112,45 @@ napi_value Init(napi_env env, napi_value exports) {
 		
 		
 	// 	{"radarDataHolderAllocate",  radarDataHolderAllocate, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderAllocate", NAPI_AUTO_LENGTH, radarDataHolderAllocate, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderAllocate", func1);
 	
 	// 	{"radarDataHolderDeallocate",  radarDataHolderDeallocate, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderDeallocate", NAPI_AUTO_LENGTH, radarDataHolderDeallocate, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderDeallocate", func1);
 	
 	// 	{"radarDataHolderLoad",  radarDataHolderLoad, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderLoad", NAPI_AUTO_LENGTH, radarDataHolderLoad, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderLoad", func1);
 	
 	// 	{"radarDataHolderUnload",  radarDataHolderUnload, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderUnload", NAPI_AUTO_LENGTH, radarDataHolderUnload, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderUnload", func1);
 	
 	// 	{"radarDataHolderGetState",  radarDataHolderGetState, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderGetState", NAPI_AUTO_LENGTH, radarDataHolderGetState, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderGetState", func1);
 	
 	// 	{"radarDataHolderGetProduct",  radarDataHolderGetProduct, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderGetProduct", NAPI_AUTO_LENGTH, radarDataHolderGetProduct, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderGetProduct", func1);
 	
 	// 	{"radarDataHolderProductGetRadarData",  radarDataHolderProductGetRadarData, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderProductGetRadarData", NAPI_AUTO_LENGTH, radarDataHolderProductGetRadarData, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderProductGetRadarData", func1);
 	
 	// 	{"radarDataHolderProductIsLoaded",  radarDataHolderProductIsLoaded, METH_VARARGS, ""},
-	
-	// 	{"radarDataHolderProductStartUsing",  radarDataHolderProductStartUsing, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderProductIsLoaded", NAPI_AUTO_LENGTH, radarDataHolderProductIsLoaded, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderProductIsLoaded", func1);
 	
 	// 	{"radarDataHolderProductStopUsing",  radarDataHolderProductStopUsing, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataHolderProductStopUsing", NAPI_AUTO_LENGTH, radarDataHolderProductStopUsing, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataHolderProductStopUsing", func1);
 	
 		
 	// 	{"recompressNexradArchive",  recompressNexradArchive, METH_VARARGS, ""},
+	napi_create_function(env, "recompressNexradArchive", NAPI_AUTO_LENGTH, recompressNexradArchive, nullptr, &func1);
+	napi_set_named_property(env, exports, "recompressNexradArchive", func1);
 	
 	return exports;
 }

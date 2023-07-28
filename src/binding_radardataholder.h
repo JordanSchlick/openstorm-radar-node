@@ -1,114 +1,209 @@
-#include "Python.h"
-#include "../OpenStorm/Source/OpenStorm/Radar/RadarDataHolder.h"
+#include <node_api.h>
+#include "./helpers.h"
+#include "../../OpenStorm/Source/OpenStorm/Radar/RadarDataHolder.h"
 
 #include <string>
 
-static PyObject* radarDataHolderAllocate(PyObject* self, PyObject* args) {
+void radarDataHolderDeallocateCallback(napi_env env, void* finalize_data, void* finalize_hint){
+	delete (RadarDataHolder*)finalize_data;
+}
+
+static napi_value radarDataHolderAllocate(napi_env env, napi_callback_info info) {
 	RadarDataHolder* radarDataHolder = new RadarDataHolder();
-	return PyLong_FromVoidPtr(radarDataHolder);
-}
-
-static PyObject* radarDataHolderDeallocate(PyObject* self, PyObject* args) {
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder* radarDataHolder = (RadarDataHolder*)PyLong_AsVoidPtr(arg0);
-	Py_BEGIN_ALLOW_THREADS
-	delete radarDataHolder;
-	Py_END_ALLOW_THREADS
-	return PyBool_FromLong(1);
+	
+	napi_value objPointer;
+	napi_create_object(env, &objPointer);
+	napi_set_named_property(env, objPointer, "type", make_string_napi(env, "RadarDataHolder Pointer"));
+	napi_wrap(env, objPointer, radarDataHolder, radarDataHolderDeallocateCallback, NULL, NULL);
+	
+	return objPointer;
 }
 
 
+static napi_value radarDataHolderDeallocate(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
 
-static PyObject* radarDataHolderLoad(PyObject* self, PyObject* args) {
-	// radar data holder
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	// file name (optional)
-	PyObject* arg1=PyTuple_GetItem(args, 1);
-	RadarDataHolder* radarDataHolder = (RadarDataHolder*)PyLong_AsVoidPtr(arg0);
-	if(arg1 != NULL){
-		RadarFile file = {};
-		file.path = std::string(PyUnicode_AsUTF8(arg1));
-		Py_BEGIN_ALLOW_THREADS
-		radarDataHolder->Load(file);
-		Py_END_ALLOW_THREADS
-	}else{
-		Py_BEGIN_ALLOW_THREADS
-		radarDataHolder->Load();
-		Py_END_ALLOW_THREADS
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "RadarDataHolder pointer not defined");
+		return make_undefined(env);
 	}
 	
-	return PyBool_FromLong(1);
+	RadarDataHolder* radarDataHolder;
+	napi_remove_wrap(env, argv[0], (void**)&radarDataHolder);
+	if(radarDataHolder != NULL){
+		delete radarDataHolder;
+		return make_bool(env, 1);
+	}else{
+		return make_bool(env, 0);
+	}
 }
 
-static PyObject* radarDataHolderUnload(PyObject* self, PyObject* args) {
+
+
+static napi_value radarDataHolderLoad(napi_env env, napi_callback_info info) {
+	size_t argc = 3;
+	napi_value argv[3];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc < 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder pointer, optional file name]");
+		return make_undefined(env);
+	}
 	// radar data holder
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder* radarDataHolder = (RadarDataHolder*)PyLong_AsVoidPtr(arg0);
-	Py_BEGIN_ALLOW_THREADS
+	RadarDataHolder* radarDataHolder = (RadarDataHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolder == NULL){
+		return make_undefined(env);
+	}
+	
+	if(argc >= 2){
+		// filename
+		char filename[1024];
+		size_t filenameLength = 0;
+		napi_get_value_string_utf8(env, argv[1], filename, 1024, &filenameLength);
+		
+		RadarFile file = {};
+		file.path = std::string(filename);
+		radarDataHolder->Load(file);
+	}else{
+		radarDataHolder->Load();
+	}
+	
+	return make_bool(env, 1);
+}
+
+static napi_value radarDataHolderUnload(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder pointer]");
+		return make_undefined(env);
+	}
+	// radar data holder
+	RadarDataHolder* radarDataHolder = (RadarDataHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolder == NULL){
+		return make_undefined(env);
+	}
 	radarDataHolder->Unload();
-	Py_END_ALLOW_THREADS
-	return PyBool_FromLong(1);
+	return make_bool(env, 1);
 }
 
-static PyObject* radarDataHolderGetState(PyObject* self, PyObject* args) {
+static napi_value radarDataHolderGetState(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder pointer]");
+		return make_undefined(env);
+	}
 	// radar data holder
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder* radarDataHolder = (RadarDataHolder*)PyLong_AsVoidPtr(arg0);
-	return PyLong_FromLong((int)radarDataHolder->state);
+	RadarDataHolder* radarDataHolder = (RadarDataHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolder == NULL){
+		return make_undefined(env);
+	}
+	return make_int32(env, (int)radarDataHolder->state);
 }
 
-static PyObject* radarDataHolderGetProduct(PyObject* self, PyObject* args) {
+void radarDataHolderProductDeallocateCallback(napi_env env, void* data, void* hint){
+	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)data;
+	radarDataHolderProduct->StopUsing();
+}
+
+static napi_value radarDataHolderGetProduct(napi_env env, napi_callback_info info) {
+	size_t argc = 2;
+	napi_value argv[2];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 2)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder pointer, volume type]");
+		return make_undefined(env);
+	}
 	// radar data holder
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	// volume type
-	PyObject* arg1=PyTuple_GetItem(args, 1);
-	if (arg1==NULL) return NULL;
-	RadarDataHolder* radarDataHolder = (RadarDataHolder*)PyLong_AsVoidPtr(arg0);
-	RadarDataHolder::ProductHolder* radarDataHolderProduct = radarDataHolder->GetProduct((RadarData::VolumeType)PyLong_AsLong(arg1));
+	RadarDataHolder* radarDataHolder = (RadarDataHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolder == NULL){
+		return make_undefined(env);
+	}
+	RadarDataHolder::ProductHolder* radarDataHolderProduct = radarDataHolder->GetProduct((RadarData::VolumeType)get_int32(env, argv[1]));
 	radarDataHolderProduct->isFinal = true;
-	return PyLong_FromVoidPtr(radarDataHolderProduct);
+	radarDataHolderProduct->StartUsing();
+	
+	napi_value objPointer;
+	napi_create_object(env, &objPointer);
+	napi_set_named_property(env, objPointer, "type", make_string_napi(env, "RadarDataHolder::ProductHolder Pointer"));
+	napi_wrap(env, objPointer, radarDataHolderProduct, radarDataHolderProductDeallocateCallback, NULL, NULL);
+	
+	return objPointer;
 }
 
-static PyObject* radarDataHolderProductGetRadarData(PyObject* self, PyObject* args) {
-	// radar data holder product
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)PyLong_AsVoidPtr(arg0);
-	Py_BEGIN_ALLOW_THREADS
+static napi_value radarDataHolderProductGetRadarData(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder::ProductHolder pointer]");
+		return make_undefined(env);
+	}
+	// product holder
+	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolderProduct == NULL){
+		return make_undefined(env);
+	}
 	if(radarDataHolderProduct->radarData != NULL){
 		radarDataHolderProduct->radarData->Decompress();
+	}else{
+		return make_bool(env, 0);
 	}
-	Py_END_ALLOW_THREADS
-	return PyLong_FromVoidPtr(radarDataHolderProduct->radarData);
+	napi_value objPointer;
+	napi_create_object(env, &objPointer);
+	napi_set_named_property(env, objPointer, "type", make_string_napi(env, "RadarData Pointer"));
+	// radar data is managed by the product holder and will be deleted upon gc
+	// therefor link the product holder to prevent gc
+	napi_set_named_property(env, objPointer, "parent", argv[0]);
+	napi_wrap(env, objPointer, radarDataHolderProduct->radarData, NULL, NULL, NULL);
+	return objPointer;
+	return make_undefined(env);
 }
 
-static PyObject* radarDataHolderProductIsLoaded(PyObject* self, PyObject* args) {
-	// radar data holder product
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)PyLong_AsVoidPtr(arg0);
-	return PyBool_FromLong(radarDataHolderProduct->isLoaded);
+static napi_value radarDataHolderProductIsLoaded(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder::ProductHolder pointer]");
+		return make_undefined(env);
+	}
+	// product holder
+	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)unwrap_pointer(env, argv[0]);
+	if(radarDataHolderProduct == NULL){
+		return make_undefined(env);
+	}
+	return make_bool(env, radarDataHolderProduct->isLoaded);
 }
 
-static PyObject* radarDataHolderProductStartUsing(PyObject* self, PyObject* args) {
-	// radar data holder product
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)PyLong_AsVoidPtr(arg0);
-	radarDataHolderProduct->StartUsing();
-	return PyBool_FromLong(1);
-}
 
-static PyObject* radarDataHolderProductStopUsing(PyObject* self, PyObject* args) {
-	// radar data holder product
-	PyObject* arg0=PyTuple_GetItem(args, 0);
-	if (arg0==NULL) return NULL;
-	RadarDataHolder::ProductHolder* radarDataHolderProduct = (RadarDataHolder::ProductHolder*)PyLong_AsVoidPtr(arg0);
-	radarDataHolderProduct->StopUsing();
-	return PyBool_FromLong(1);
+static napi_value radarDataHolderProductStopUsing(napi_env env, napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarDataHolder::ProductHolder pointer]");
+		return make_undefined(env);
+	}
+	// product holder
+	RadarDataHolder::ProductHolder* radarDataHolderProduct;
+	napi_remove_wrap(env, argv[0], (void**)&radarDataHolderProduct);
+	if(radarDataHolderProduct != NULL){
+		radarDataHolderProduct->StopUsing();
+		return make_bool(env, 1);
+	}else{
+		return make_bool(env, 0);
+	}
 }

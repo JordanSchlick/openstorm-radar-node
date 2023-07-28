@@ -42,12 +42,15 @@ class RadarData{
 			this.productHolder = options.productHolder
 		}
 		if(options.existingPointer){
+			/** internal pointer to c++ data */
 			this.pointer = options.existingPointer
 		}else{
+			/** internal pointer to c++ data */
 			this.pointer = nativeModule.radarDataAllocate(options.maxSweeps, options.maxThetas, options.maxRadius)
 		}
 		
-		// the following properties will be populated by nativeModule.radarDataUpdateProperties
+		
+		
 		
 		/** number of full sweep disks in the buffer */ 
 		this.sweepBufferCount = 0
@@ -69,6 +72,9 @@ class RadarData{
 		 * @type {Float32Array | undefined} 
 		 * */
 		this.buffer = undefined
+		// the preceding properties will be populated by nativeModule.radarDataUpdateProperties
+		nativeModule.radarDataUpdateProperties(this.pointer, this)
+		
 	}
 	
 	/**
@@ -120,9 +126,109 @@ class RadarData{
 }
 
 
+class RadarDataHolder {
+	
+	static DataStateUnloaded = 0
+	static DataStateLoading = 1
+	static DataStateLoaded = 2
+	static DataStateFailed = 3
+	
+	/**
+	 * a class that holds the radar products and related information
+	 * it also manages loading in radar files and products asynchronously
+	 */
+	constructor(existingPointer=null, autoFree=true) {
+		this.autoFree = autoFree
+		if (existingPointer === null) {
+			this.pointer = nativeModule.radarDataHolderAllocate()
+		} else {
+			this.pointer = existingPointer
+		}
+	}
+	
+	/**
+	 * load a file or load new products if fileName is not specified
+	 * this will keep existing data so call unload if changing files
+	 */
+	load(fileName) {
+		
+		this.fileName = fileName
+		if (fileName === null) {
+			/** internal pointer to c++ data */
+			nativeModule.radarDataHolderLoad(this.pointer)
+		} else {
+			/** internal pointer to c++ data */
+			nativeModule.radarDataHolderLoad(this.pointer, fileName)
+		}
+	}
+	
+	/** unload products and cancel loading */
+	unload() {
+		nativeModule.radarDataHolderUnload(this.pointer)
+    }
+    
+    deallocate() {
+        if (this.autoFree) {
+            nativeModule.radarDataHolderDeallocate(this.pointer)
+        }
+    }
+	
+	/** get a product to be loaded or add it if it is not found, should be called before Load if adding new product */
+	getProduct(volumeType) {
+		let pointer = nativeModule.radarDataHolderGetProduct(this.pointer, volumeType)
+		if (pointer) {
+			return new RadarDataHolderProduct(pointer)
+		}
+    }
+	
+	/** get current loading state of this object. compare with the DataStates defined on this class*/
+	getState() {
+        return nativeModule.radarDataHolderGetState(this.pointer)
+    }
+}
+
+class RadarDataHolderProduct {
+	/**
+	 * Holds info about a product and the radar data related to it.
+	 * Created from RadarDataHolder
+	 */
+	constructor(existingPointer) {
+		this.pointer = existingPointer
+	}
+	
+	/**
+	 * Get the radar data for this product.
+	 */
+	getRadarData() {
+		console.log("getting ptr")
+		let pointer = nativeModule.radarDataHolderProductGetRadarData(this.pointer)
+		console.log("ptr", pointer)
+		if (pointer) {
+			// Radar data is managed by the holder so do not free it and pass this to prevent self from falling from scope which may take the native RadarData with it.
+			return new RadarData({existingPointer:pointer, productHolder:this})
+		}
+	}
+	
+	/** True if the radar data for this product is ready. */
+	isLoaded() {
+		return nativeModule.radarDataHolderProductIsLoaded(this.pointer)
+    }
+	
+	/**
+	 * indicate that you are no longer using the radar data and it can be freed early  
+	 * calloing this is not required and will be automatically done when this is garbage collected  
+	 * the main product holder must also be unloaded for radar data to be freed  
+	 */
+	stopUsing(){
+		nativeModule.radarDataHolderProductStopUsing(this.pointer)
+	}
+}
+
 
 module.exports = {
 	nativeModule,
 	RadarData,
 	VolumeTypes,
+	RadarDataHolder,
+	RadarDataHolderProduct,
 }
