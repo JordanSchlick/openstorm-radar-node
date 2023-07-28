@@ -101,6 +101,10 @@ napi_value Init(napi_env env, napi_value exports) {
 	napi_create_function(env, "radarDataGetSweepInfo", NAPI_AUTO_LENGTH, radarDataGetSweepInfo, nullptr, &func1);
 	napi_set_named_property(env, exports, "radarDataGetSweepInfo", func1);
 	
+	// 	{"radarDataGetRayInfo",  radarDataGetRayInfo, METH_VARARGS, ""},
+	napi_create_function(env, "radarDataGetRayInfo", NAPI_AUTO_LENGTH, radarDataGetRayInfo, nullptr, &func1);
+	napi_set_named_property(env, exports, "radarDataGetRayInfo", func1);
+	
 	// 	{"radarDataRadarSpaceForLocation",  radarDataRadarSpaceForLocation, METH_VARARGS, ""},
 	napi_create_function(env, "radarDataRadarSpaceForLocation", NAPI_AUTO_LENGTH, radarDataRadarSpaceForLocation, nullptr, &func1);
 	napi_set_named_property(env, exports, "radarDataRadarSpaceForLocation", func1);

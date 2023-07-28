@@ -3,23 +3,35 @@
 //@ts-ignore
 var nativeModule = require('./build/Release/openstorm-radar.node');
 
+
 class VolumeTypes{
+	/** @readonly */
 	static VOLUME_NONE = -1
+	/** @readonly */
 	static VOLUME_UNKNOWN = 0
 
 	// raw volume types
 
+	/** @readonly */
 	static VOLUME_REFLECTIVITY = 1
+	/** @readonly */
 	static VOLUME_VELOCITY = 2
+	/** @readonly */
 	static VOLUME_SPECTRUM_WIDTH = 3
+	/** @readonly */
 	static VOLUME_CORELATION_COEFFICIENT = 4
+	/** @readonly */
 	static VOLUME_DIFFERENTIAL_REFLECTIVITY = 5
+	/** @readonly */
 	static VOLUME_DIFFERENTIAL_PHASE_SHIFT = 6
 
 	// computed volume types
 
+	/** @readonly */
 	static VOLUME_VELOCITY_DEALIASED = 102
+	/** @readonly */
 	static VOLUME_ROTATION = 103
+	/** @readonly */
 	static VOLUME_STORM_RELATIVE_VELOCITY = 104
 }
 
@@ -73,7 +85,7 @@ class RadarData{
 		 * */
 		this.buffer = undefined
 		// the preceding properties will be populated by nativeModule.radarDataUpdateProperties
-		nativeModule.radarDataUpdateProperties(this.pointer, this)
+		this.updateProperties()
 		
 	}
 	
@@ -91,23 +103,7 @@ class RadarData{
 	 */
 	loadNexradFile(filename, volumeType){
 		nativeModule.radarDataLoadFile(this.pointer, filename, volumeType)
-		nativeModule.radarDataUpdateProperties(this.pointer, this)
-		if(this.buffer){
-			/**
-			 * an indexable 3d array of the buffer  
-			 * the padding rays are excluded
-			 * @type {Float32Array[][]}
-			 */
-			this.bufferArray = []
-			for(let sweep = 0; sweep < this.sweepBufferCount; sweep++){
-				let sweepArray = []
-				for(let theta = 1; theta <= this.thetaBufferCount; theta++){
-					let location = this.sweepBufferSize * sweep + this.thetaBufferSize * theta
-					sweepArray.push(this.buffer.subarray(location, location + this.thetaBufferSize))
-				}
-				this.bufferArray.push(sweepArray)
-			}
-		}
+		this.updateProperties()
 	}
 	
 	/**
@@ -123,15 +119,56 @@ class RadarData{
 	getSweepInfo(){
 		return nativeModule.radarDataGetSweepInfo(this.pointer)
 	}
+	
+	/**
+	 * get array of objects containing information about the rays in the radar volume
+	 */
+	getRayInfo(){
+		return nativeModule.radarDataGetRayInfo(this.pointer)
+	}
+	
+	/**
+	 * update class properties from native data
+	 * this function is not meant to called externally
+	 */
+	updateProperties(){
+		nativeModule.radarDataUpdateProperties(this.pointer, this)
+		if(this.buffer){
+			/**
+			 * an indexable 3d array of the buffer  
+			 * the padding rays are excluded
+			 * @type {(Float32Array & {rayInfo: object})[][]}
+			 */
+			this.bufferArray = []
+			let rayInfo = this.getRayInfo()
+			for(let sweep = 0; sweep < this.sweepBufferCount; sweep++){
+				let sweepArray = []
+				for(let theta = 1; theta <= this.thetaBufferCount; theta++){
+					let location = this.sweepBufferSize * sweep + this.thetaBufferSize * theta
+					/** @type Float32Array & {rayInfo: object} */ // @ts-ignore
+					let rayArray = this.buffer.subarray(location, location + this.thetaBufferSize)
+					rayArray.rayInfo = rayInfo[this.thetaBufferCount * sweep + theta]
+					sweepArray.push(rayArray)
+				}
+				this.bufferArray.push(sweepArray)
+			}
+		}else{
+			delete this.bufferArray
+		}
+	}
 }
 
 
 class RadarDataHolder {
 	
-	static DataStateUnloaded = 0
-	static DataStateLoading = 1
-	static DataStateLoaded = 2
-	static DataStateFailed = 3
+	/** @readonly */
+	static DATA_STATE_UNLOADED = 0
+	/** @readonly */
+	static DATA_STATE_LOADING = 1
+	/** @readonly */
+	static DATA_STATE_LOADED = 2
+	/** @readonly */
+	static DATA_STATE_FAILED = 3
 	
 	/**
 	 * a class that holds the radar products and related information
@@ -200,9 +237,7 @@ class RadarDataHolderProduct {
 	 * Get the radar data for this product.
 	 */
 	getRadarData() {
-		console.log("getting ptr")
 		let pointer = nativeModule.radarDataHolderProductGetRadarData(this.pointer)
-		console.log("ptr", pointer)
 		if (pointer) {
 			// Radar data is managed by the holder so do not free it and pass this to prevent self from falling from scope which may take the native RadarData with it.
 			return new RadarData({existingPointer:pointer, productHolder:this})

@@ -204,6 +204,42 @@ static napi_value radarDataGetSweepInfo(napi_env env, const napi_callback_info i
 	return sweepArray;
 }
 
+static napi_value radarDataGetRayInfo(napi_env env, const napi_callback_info info) {
+	size_t argc = 1;
+	napi_value argv[1];
+	napi_get_cb_info(env, info, &argc, argv, NULL, NULL);
+	if (argc != 1)
+	{
+		napi_throw_error(env, nullptr, "Invalid number of arguments. [RadarData pointer]");
+		return make_undefined(env);
+	}
+	// radar data
+	RadarData* radarData = (RadarData*)unwrap_pointer(env, argv[0]);
+	if(radarData == NULL){
+		return make_undefined(env);
+	}
+	
+	napi_value rayArray;
+	int rayCount = radarData->sweepBufferCount * (radarData->thetaBufferCount + 2);
+	napi_create_array_with_length(env, rayCount, &rayArray);
+	if(radarData->sweepInfo != NULL){
+		for(int i = 0; i < rayCount; i++){
+			RadarData::RayInfo* rayInfo = &radarData->rayInfo[i];
+			napi_value info;
+			napi_create_object(env, &info);
+			napi_set_named_property(env, info, "interpolated", make_bool(env, rayInfo->interpolated));
+			napi_set_named_property(env, info, "actualAngle", make_double(env, rayInfo->actualAngle));
+			napi_set_named_property(env, info, "closestTheta", make_int32(env, rayInfo->closestTheta));
+			napi_set_named_property(env, info, "nextTheta", make_int32(env, rayInfo->nextTheta));
+			napi_set_named_property(env, info, "previousTheta", make_int32(env, rayInfo->previousTheta));
+			napi_set_named_property(env, info, "sweep", make_int32(env, rayInfo->sweep));
+			napi_set_named_property(env, info, "theta", make_int32(env, rayInfo->theta));
+			napi_set_element(env, rayArray, i, info);
+		}
+	}
+	return rayArray;
+}
+
 static napi_value radarDataRadarSpaceForLocation(napi_env env, const napi_callback_info info) {
 	size_t argc = 4;
 	napi_value argv[4];
