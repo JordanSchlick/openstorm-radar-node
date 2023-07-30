@@ -156,6 +156,9 @@ napi_value Init(napi_env env, napi_value exports) {
 	napi_create_function(env, "recompressNexradArchive", NAPI_AUTO_LENGTH, recompressNexradArchive, nullptr, &func1);
 	napi_set_named_property(env, exports, "recompressNexradArchive", func1);
 	
+	napi_create_function(env, "h5List", NAPI_AUTO_LENGTH, h5List, nullptr, &func1);
+	napi_set_named_property(env, exports, "h5List", func1);
+	
 	return exports;
 }
 

@@ -7,7 +7,7 @@ napi_value make_bool(napi_env env, int input) {
 	napi_coerce_to_bool(env, out, &out);
 	return out;
 }
-napi_value make_string_napi(napi_env env, char* input) {
+napi_value make_string_napi(napi_env env, const char* input) {
 	napi_value out;
 	napi_create_string_utf8(env, input, NAPI_AUTO_LENGTH, &out);
 	return out;
