@@ -1,9 +1,11 @@
 #include <node_api.h>
 #include "./helpers.h"
 #include "../../OpenStorm/Source/OpenStorm/Radar/Nexrad.h"
-#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5File.hpp"
-#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5DataSet.hpp"
-#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5DataSpace.hpp"
+#ifdef HDF5
+#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5File.hpp"
+#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSet.hpp"
+#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSpace.hpp"
+#endif
 #include <string>
 
 static napi_value recompressNexradArchive(napi_env env, napi_callback_info info) {
@@ -27,6 +29,7 @@ static napi_value recompressNexradArchive(napi_env env, napi_callback_info info)
 	return make_bool(env, result == 0);
 }
 
+#ifdef HDF5
 
 static std::string listAttributes(HighFive::DataSet object, std::string prefix){
 	std::string out = "";
@@ -87,3 +90,5 @@ static napi_value h5List(napi_env env, napi_callback_info info) {
 	std::string list = walkH5(file.getGroup("/"), 0);
 	return make_string_napi(env, list.c_str());
 }
+
+#endif

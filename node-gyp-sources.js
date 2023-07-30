@@ -18,20 +18,24 @@ async function getFiles(dir) {
 }
 
 (async () => {
-	let fromDirectory = process.argv[2]
-	let files = (await getFiles(path.resolve(fromDirectory)))
-		.filter(filename =>
-			filename.endsWith(".cpp") ||
-			//v.endsWith(".h") ||
-			//v.endsWith(".hpp") ||
-			filename.endsWith(".cc") ||
-			filename.endsWith(".c"),
-		)
-		// .map(v => path.relative(__dirname, v))
-		.map(v => v.replace(/\\/g, "/"))
-		.join("' '");
-	process.stdout.write("'")
-	process.stdout.write(files)
-	process.stdout.write("'")
-	return files;
+	try{
+		let fromDirectory = process.argv[2]
+		let files = (await getFiles(path.resolve(fromDirectory)))
+			.filter(filename =>
+				filename.endsWith(".cpp") ||
+				//v.endsWith(".h") ||
+				//v.endsWith(".hpp") ||
+				filename.endsWith(".cc") ||
+				filename.endsWith(".c"),
+			)
+			// .map(v => path.relative(__dirname, v))
+			.map(v => v.replace(/\\/g, "/"))
+			.join("' '");
+		process.stdout.write("'")
+		process.stdout.write(files)
+		process.stdout.write("'")
+		return files;
+	}catch(e){
+		// console.error(e)
+	}
 })();
