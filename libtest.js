@@ -1,5 +1,8 @@
 // @ts-check
 
+// var SegfaultHandler = require('segfault-handler');
+// SegfaultHandler.registerHandler("crash.log");
+
 let OpenStormRadar = require(".")
 
 

@@ -20,6 +20,7 @@
 				}]
 			],
 			"defines": [
+				"<!@(node node-gyp-defines.js HDF5 exists ../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/)"
 				"<!@(node node-gyp-defines.js HDF5 exists ../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/)"
 			],
 			

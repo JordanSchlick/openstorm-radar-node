@@ -2,9 +2,12 @@
 #include "./helpers.h"
 #include "../../OpenStorm/Source/OpenStorm/Radar/Nexrad.h"
 #ifdef HDF5
-#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5File.hpp"
-#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSet.hpp"
-#include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSpace.hpp"
+// #include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5File.hpp"
+// #include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSet.hpp"
+// #include "../../OpenStorm/Plugins/UnrealHDF5/Source/UnrealHDF5/hdf5/highfive/H5DataSpace.hpp"
+#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5File.hpp"
+#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5DataSet.hpp"
+#include "../../OpenStorm/Source/OpenStorm/Radar/Deps/hdf5/highfive/H5DataSpace.hpp"
 #endif
 #include <string>
 
