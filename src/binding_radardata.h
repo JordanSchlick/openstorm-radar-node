@@ -197,6 +197,7 @@ static napi_value radarDataGetSweepInfo(napi_env env, const napi_callback_info i
 			napi_create_object(env, &info);
 			napi_set_named_property(env, info, "elevation", make_double(env, radarData->sweepInfo[i].elevationAngle));
 			napi_set_named_property(env, info, "id", make_int32(env, radarData->sweepInfo[i].id));
+			napi_set_named_property(env, info, "index", make_int32(env, radarData->sweepInfo[i].index));
 			napi_set_named_property(env, info, "actual_ray_count", make_int32(env, radarData->sweepInfo[i].actualRayCount));
 			napi_set_element(env, sweepArray, i, info);
 		}

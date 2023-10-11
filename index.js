@@ -128,7 +128,7 @@ class RadarData{
 	}
 	
 	/**
-	 * update class properties from native data
+	 * update class properties from native data  
 	 * this function is not meant to called externally
 	 */
 	updateProperties(){
@@ -171,7 +171,7 @@ class RadarDataHolder {
 	static DATA_STATE_FAILED = 3
 	
 	/**
-	 * a class that holds the radar products and related information
+	 * a class that holds the radar products and related information  
 	 * it also manages loading in radar files and products asynchronously
 	 */
 	constructor(existingPointer=null, autoFree=true) {
@@ -184,7 +184,7 @@ class RadarDataHolder {
 	}
 	
 	/**
-	 * load a file or load new products if fileName is not specified
+	 * load a file or load new products if fileName is not specified  
 	 * this will keep existing data so call unload if changing files
 	 */
 	load(fileName) {
@@ -226,7 +226,7 @@ class RadarDataHolder {
 
 class RadarDataHolderProduct {
 	/**
-	 * Holds info about a product and the radar data related to it.
+	 * Holds info about a product and the radar data related to it.  
 	 * Created from RadarDataHolder
 	 */
 	constructor(existingPointer) {
